@@ -1,0 +1,78 @@
+<!doctype html>
+
+<html>
+    <head>
+        <title>웹채팅 페이지</title>
+    </head>
+
+    <body>    
+        <h1>웹채팅 하기 </h1>
+        채팅 대화명: <input type="text" id="nickName" value="강창훈" />
+        채팅 메시지: <input type="text" id="message" />
+        <button id="btnSend">전송</button>
+        
+        <hr/>
+        
+        <ul id="chatHistory">
+            <li>강창훈: 안녕하세요.</li>
+            <li>우성우: 점심 맛있게 드셨어요?.</li>
+            <li>강창훈: 네..베트남 쌀국수 먹었어요.</li>
+        </ul>
+
+
+    <!-- jQuery CDN 참조 -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    
+    <!-- socket.io javascript library 참조  -->
+    <script src="/socket.io/socket.io.js"></script>
+
+    
+    <!-- 프론트엔드 개발자가 구현하는 클라이언트 스크립트 코딩영역 -->
+    <script>
+        //클라이언트(웹브라우저) 서버 연결 소켓 객체 정의 
+        //클라이언트 웹브라우저와 서버 socket.js와 연결이 완료된다.
+        var socket = io.connect('/');
+
+        //전송버튼 클릭시 사용자 입력메시지를 서버에 특정 이벤트 기능으로 전송한다.
+        $("#btnSend").click(function(){
+
+            var msg = $("#message").val();
+            var nickName = $("#nickName").val();
+
+            //최종 서버소켓으로 전송할 단일 메시지값을 조합니다.
+            var sendMsg = `${nickName}:${msg}`; //강창훈:안녕하세요.
+
+            //socket.emit('서버소켓 수신이벤트명')는 서버소켓에 지정된 이벤트 수신기로 메시지를 전송합니다(웹브라우에서 서버로 메시지전송)
+            socket.emit("broadcast",sendMsg);
+
+        });
+
+        //서버소켓(socket.js)에서 전송되는 메시지 수신 이벤트 정의 및 기능구현하기 
+        //socket.on('이벤트명',서버에서전달되는 메시지처리 함수기능정의);
+        socket.on("receiveAll",function(receiveMsg){
+            console.log("메시지 수신기-데이터","receiveAll",receiveMsg);
+
+            var liTag = `<li>${receiveMsg}</li>`;
+
+            //ul태그에 서버에서 전송된 메시지와 함께 조합된 li태그를 동적으로 추가해준다.
+            $("#chatHistory").append(liTag);
+            
+        });
+
+
+    </script>
+
+
+
+
+    </body>
+</html>
+
+
+
+
+
+
+
+
+
